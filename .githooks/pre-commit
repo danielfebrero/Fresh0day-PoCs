@@ -1,0 +1,32 @@
+#!/bin/sh
+# Enforce author identity for Fresh0day-PoCs
+EXPECTED_NAME="Daniel Febrero"
+EXPECTED_EMAIL="febrero.daniel@gmail.com"
+
+git config --local user.name "$EXPECTED_NAME" >/dev/null 2>&1 || true
+git config --local user.email "$EXPECTED_EMAIL" >/dev/null 2>&1 || true
+
+NAME=$(git config user.name 2>/dev/null || true)
+EMAIL=$(git config user.email 2>/dev/null || true)
+
+# Prefer local; but if resolved identity is wrong, fail
+if [ "$EMAIL" != "$EXPECTED_EMAIL" ] || [ "$NAME" != "$EXPECTED_NAME" ]; then
+  echo "ERROR: This repository requires commits as:" >&2
+  echo "  $EXPECTED_NAME <$EXPECTED_EMAIL>" >&2
+  echo "  current effective identity: ${NAME:-?} <${EMAIL:-?}>" >&2
+  echo "Fix:" >&2
+  echo "  git config --local user.name \"$EXPECTED_NAME\"" >&2
+  echo "  git config --local user.email \"$EXPECTED_EMAIL\"" >&2
+  exit 1
+fi
+
+if [ -n "${GIT_AUTHOR_EMAIL:-}" ] && [ "$GIT_AUTHOR_EMAIL" != "$EXPECTED_EMAIL" ]; then
+  echo "ERROR: GIT_AUTHOR_EMAIL override is $GIT_AUTHOR_EMAIL (expected $EXPECTED_EMAIL)" >&2
+  exit 1
+fi
+if [ -n "${GIT_COMMITTER_EMAIL:-}" ] && [ "$GIT_COMMITTER_EMAIL" != "$EXPECTED_EMAIL" ]; then
+  echo "ERROR: GIT_COMMITTER_EMAIL override is $GIT_COMMITTER_EMAIL (expected $EXPECTED_EMAIL)" >&2
+  exit 1
+fi
+
+exit 0
