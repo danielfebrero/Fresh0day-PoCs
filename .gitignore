@@ -1,0 +1,20 @@
+# Local agent / IDE workspace tooling
+.claude/
+.codex/
+.wllm/
+
+# Agent instruction / workspace manifests (local)
+AGENTS.md
+CLAUDE.md
+wllm.toml
+
+# Python
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Editor / OS
+.DS_Store
+*.swp
